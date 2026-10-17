@@ -57,8 +57,31 @@ try {
   await mobile.locator('#qblock-40').waitFor();
   await mobile.close();
 
-  assert.deepEqual(errors, [], 'Desktop and mobile browsers should not report uncaught JavaScript errors');
-  console.log('Smoke test passed: desktop and mobile Reading navigation, answer persistence, scoring, Writing tasks and Speaking transitions.');
+  // Account flow: register, persist an answer to SQLite, return to the menu and resume it.
+  const accountPage = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  accountPage.on('pageerror', error => { errors.push('account: ' + error.message); console.error('ACCOUNT PAGEERROR:', error.message); });
+  await accountPage.goto('http://127.0.0.1:4173', { waitUntil: 'networkidle' });
+  await accountPage.locator('#accountBtn').click();
+  await accountPage.locator('button[data-auth-mode="register"]').click();
+  await accountPage.locator('#authEmail').fill('e2e-' + Date.now() + '@example.com');
+  await accountPage.locator('#authPassword').fill('correct-horse-practice-123');
+  await accountPage.locator('#authForm button[type="submit"]').click();
+  await accountPage.getByText('No saved attempts yet.', { exact: false }).waitFor();
+  await accountPage.getByRole('button', { name: 'Close' }).click();
+  await accountPage.locator('button[data-skill="Reading"]').click();
+  await accountPage.locator('#panegrid:not(.hide)').waitFor();
+  await accountPage.locator('[data-answer="1"]').fill('April');
+  await accountPage.waitForTimeout(5000);
+  await accountPage.getByRole('button', { name: /Test menu/ }).click();
+  await accountPage.locator('#accountBtn').click();
+  await accountPage.getByRole('button', { name: 'Resume' }).waitFor();
+  await accountPage.getByRole('button', { name: 'Resume' }).click();
+  await accountPage.locator('[data-answer="1"]').waitFor();
+  assert.equal(await accountPage.locator('[data-answer="1"]').inputValue(), 'April', 'Account should restore saved Reading answers');
+  await accountPage.close();
+
+  assert.deepEqual(errors, [], 'Desktop, mobile and account flows should not report uncaught JavaScript errors');
+  console.log('Smoke test passed: responsive four-skill UI, local and account persistence, resume, scoring and authentication.');
 } finally {
   await browser.close();
 }
