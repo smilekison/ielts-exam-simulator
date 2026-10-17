@@ -6,10 +6,10 @@ const vm = require('node:vm');
 
 const htmlPath = path.join(__dirname, '..', 'index.html');
 const html = fs.readFileSync(htmlPath, 'utf8');
-const scripts = [...html.matchAll(/<script\\b[^>]*>([\\s\\S]*?)<\\/script>/g)];
+const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)];
 
 if (scripts.length !== 1) {
-  throw new Error(`Expected one inline application script in index.html; found ${scripts.length}.`);
+  throw new Error(\`Expected one inline application script in index.html; found \${scripts.length}.\`);
 }
 
 try {
