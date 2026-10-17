@@ -11,7 +11,7 @@
     "start": "node server.js",
     "dev": "node --watch server.js",
     "test": "node --test tests/api.test.js",
-    "check": "node --check server.js && node --check server/app.js && node --check server/database.js && node --check server/answer-keys.js && node --check tests/api.test.js"
+    "check": "node --check server.js && node --check server/app.js && node --check server/database.js && node --check server/answer-keys.js && node --check tests/api.test.js && node scripts/check-inline-script.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

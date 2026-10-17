@@ -9,12 +9,21 @@ page.on('console', message => { if (message.type() === 'error') console.error('B
 try {
   await page.goto('http://127.0.0.1:4173', { waitUntil: 'networkidle' });
   await assert.doesNotReject(() => page.getByRole('heading', { name: 'Computer-Based IELTS Practice' }).waitFor());
+  assert.equal(await page.locator('#toolbar').evaluate(el => el.classList.contains('hide')), true, 'Exam tools should be hidden on the home dashboard');
 
   // Reading must expose all 40 numbered questions and preserve answers.
   await page.locator('button[data-skill="Reading"]').click();
   await page.locator('#panegrid:not(.hide)').waitFor();
+  await page.locator('#toolbar:not(.hide)').waitFor();
+  await page.locator('#timer:not(.hide)').waitFor();
   await page.locator('#questionNav button').first().waitFor();
   assert.equal(await page.locator('#questionNav button').count(), 40, 'Reading navigation should contain 40 questions');
+  const firstFlag = page.locator('.flag-btn[data-flag="1"]');
+  await firstFlag.click();
+  assert.equal(await firstFlag.getAttribute('aria-pressed'), 'true', 'Question review flag should turn on');
+  assert.ok((await page.locator('#questionNav button[data-jump="1"]').getAttribute('class')).includes('flagged'), 'Flag should appear on the question palette');
+  await firstFlag.click();
+  assert.equal(await firstFlag.getAttribute('aria-pressed'), 'false', 'Question review flag should turn off');
   await page.locator('[data-answer="1"]').fill('April');
   await page.locator('input[name="q3"][value="B"]').check();
   await page.waitForFunction(() => JSON.parse(localStorage.getItem('british-ielts-practice-simulator-v2')).answers.Reading['1'] === 'April');

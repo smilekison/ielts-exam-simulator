@@ -19,15 +19,19 @@ jobs:
         run: npm install --no-save playwright
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Start static site
+      - name: Start Node.js application
+        env:
+          SESSION_SECRET: test-only-session-secret-for-github-actions-123456
+          HOST: 127.0.0.1
+          PORT: 4173
         run: |
-          python3 -m http.server 4173 --directory . > /tmp/ielts-site.log 2>&1 &
-          echo $! > /tmp/ielts-site.pid
-          for i in $(seq 1 20); do
-            if curl --silent --fail http://127.0.0.1:4173/index.html >/dev/null; then exit 0; fi
+          npm start > /tmp/ielts-server.log 2>&1 &
+          echo $! > /tmp/ielts-server.pid
+          for i in $(seq 1 30); do
+            if curl --silent --fail http://127.0.0.1:4173/api/health >/dev/null; then exit 0; fi
             sleep 1
           done
-          cat /tmp/ielts-site.log
+          cat /tmp/ielts-server.log
           exit 1
       - name: Check inline JavaScript syntax
         run: |
