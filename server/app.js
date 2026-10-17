@@ -37,6 +37,7 @@ function attemptFromRow(row) {
 function createApp({ db, sessionStore, sessionSecret = process.env.SESSION_SECRET || 'development-only-change-this-session-secret-32-chars', staticFile = path.join(__dirname, '..', 'index.html') }) {
   if (!db) throw new Error('A database connection is required.');
   const app = express();
+  if (process.env.NODE_ENV === 'production') app.set('trust proxy', 1);
   app.disable('x-powered-by');
   app.use(helmet({ contentSecurityPolicy: false }));
   app.use(express.json({ limit: '100kb', strict: true }));
