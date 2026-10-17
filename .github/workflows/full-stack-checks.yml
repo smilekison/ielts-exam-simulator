@@ -1,0 +1,43 @@
+name: Full-stack simulator checks
+
+on:
+  push:
+    branches: [main, "feat/node-full-stack-platform"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install application dependencies
+        run: npm install
+      - name: Check JavaScript syntax
+        run: npm run check
+      - name: Run API and database tests
+        run: npm test
+      - name: Install Playwright
+        run: npm install --no-save playwright
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Start Node.js application
+        env:
+          SESSION_SECRET: test-only-session-secret-for-github-actions-123456
+          HOST: 127.0.0.1
+          PORT: 4173
+        run: |
+          npm start > /tmp/ielts-server.log 2>&1 &
+          echo $! > /tmp/ielts-server.pid
+          for i in $(seq 1 30); do
+            if curl --silent --fail http://127.0.0.1:4173/api/health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/ielts-server.log
+          exit 1
+      - name: Run desktop and mobile browser smoke tests
+        run: node tests/smoke.mjs

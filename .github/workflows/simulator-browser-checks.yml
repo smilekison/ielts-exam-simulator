@@ -1,0 +1,37 @@
+name: Simulator browser checks
+
+on:
+  push:
+    branches: [main, "feat/complete-four-skill-tests"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  browser-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright
+        run: npm install --no-save playwright
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Start static site
+        run: |
+          python3 -m http.server 4173 --directory . > /tmp/ielts-site.log 2>&1 &
+          echo $! > /tmp/ielts-site.pid
+          for i in $(seq 1 20); do
+            if curl --silent --fail http://127.0.0.1:4173/index.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/ielts-site.log
+          exit 1
+      - name: Check inline JavaScript syntax
+        run: |
+          node -e "const fs=require('fs');const h=fs.readFileSync('index.html','utf8');const m=h.match(/<script>([\\s\\S]*?)<\\/script>/);if(!m)throw Error('Inline script not found');fs.writeFileSync('/tmp/ielts-inline.js',m[1]);"
+          node --check /tmp/ielts-inline.js
+      - name: Run browser smoke tests
+        run: node tests/smoke.mjs
