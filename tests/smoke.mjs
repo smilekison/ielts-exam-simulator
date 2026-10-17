@@ -10,7 +10,8 @@ try {
   await assert.doesNotReject(() => page.getByRole('heading', { name: 'Computer-Based IELTS Practice' }).waitFor());
 
   // Reading must expose all 40 numbered questions and preserve answers.
-  await page.getByRole('button', { name: /Reading/ }).click();
+  await page.locator('button[data-skill="Reading"]').click();
+  await page.locator('#panegrid:not(.hide)').waitFor();
   await page.locator('#questionNav button').first().waitFor();
   assert.equal(await page.locator('#questionNav button').count(), 40, 'Reading navigation should contain 40 questions');
   await page.locator('[data-answer="1"]').fill('April');
@@ -22,7 +23,8 @@ try {
 
   // Listening exposes 40 questions and answer submission shows a scored result.
   await page.getByRole('button', { name: /Test menu/ }).click();
-  await page.getByRole('button', { name: /Listening/ }).click();
+  await page.locator('button[data-skill="Listening"]').click();
+  await page.locator('#panegrid:not(.hide)').waitFor();
   assert.equal(await page.locator('#questionNav button').count(), 40, 'Listening navigation should contain 40 questions');
   await page.locator('[data-answer="1"]').fill('Westbrook Language Centre');
   page.once('dialog', dialog => dialog.accept());
@@ -32,12 +34,14 @@ try {
 
   // Writing tasks switch and autosave; Speaking exposes all three parts.
   await page.getByRole('button', { name: /Test menu/ }).click();
-  await page.getByRole('button', { name: /Writing/ }).click();
+  await page.locator('button[data-skill="Writing"]').click();
+  await page.locator('#panegrid:not(.hide)').waitFor();
   await page.locator('#writingText').fill('This is a short draft for an automated smoke test.');
   await page.locator('.nav button[data-jump="2"]').click();
   await page.locator('#writingText').waitFor();
   await page.getByRole('button', { name: /Test menu/ }).click();
-  await page.getByRole('button', { name: /Speaking/ }).click();
+  await page.locator('button[data-skill="Speaking"]').click();
+  await page.locator('#speakingView:not(.hide)').waitFor();
   await page.getByRole('button', { name: 'Part 2' }).click();
   await page.getByRole('button', { name: /Start 1-minute preparation/ }).waitFor();
 
