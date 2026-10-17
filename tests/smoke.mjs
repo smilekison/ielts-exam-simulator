@@ -33,7 +33,7 @@ try {
   await page.getByRole('button', { name: /Test menu/ }).click();
   await page.getByRole('button', { name: /Writing/ }).click();
   await page.locator('#writingText').fill('This is a short draft for an automated smoke test.');
-  await page.getByRole('button', { name: /Task 2/ }).click();
+  await page.locator('.nav button[data-jump="2"]').click();
   await page.locator('#writingText').waitFor();
   await page.getByRole('button', { name: /Test menu/ }).click();
   await page.getByRole('button', { name: /Speaking/ }).click();
