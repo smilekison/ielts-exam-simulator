@@ -8,6 +8,7 @@ const bcrypt = require('bcryptjs');
 const helmet = require('helmet');
 const { rateLimit } = require('express-rate-limit');
 const { scoreAnswers } = require('./answer-keys');
+const questionBank = require('./question-bank');
 
 const SKILLS = new Set(['Listening', 'Reading', 'Writing', 'Speaking']);
 const DURATIONS = { Listening: 1800, Reading: 3600, Writing: 3600, Speaking: 840 };
@@ -80,16 +81,23 @@ function createApp({ db, sessionStore, sessionSecret = process.env.SESSION_SECRE
   };
 
   app.get('/api/health', (_req, res) => res.json({ status: 'ok', database: 'connected' }));
+  const testCatalog = () => [
+    { id: 'Listening', version: questionBank.version, durationSeconds: DURATIONS.Listening, sectionCount: questionBank.Listening.sections.length, questionCount: questionBank.Listening.sections.reduce((total, part) => total + part.questions.length, 0) },
+    { id: 'Reading', version: questionBank.version, durationSeconds: DURATIONS.Reading, sectionCount: questionBank.Reading.passages.length, questionCount: questionBank.Reading.passages.reduce((total, passage) => total + passage.qs.length, 0) },
+    { id: 'Writing', version: questionBank.version, durationSeconds: DURATIONS.Writing, taskCount: questionBank.Writing.tasks.length },
+    { id: 'Speaking', version: questionBank.version, durationSeconds: DURATIONS.Speaking, partCount: questionBank.Speaking.parts.length }
+  ];
   app.get('/api/config', (_req, res) => res.json({
-    skills: [
-      { id: 'Listening', durationSeconds: DURATIONS.Listening, questionCount: 40 },
-      { id: 'Reading', durationSeconds: DURATIONS.Reading, questionCount: 40 },
-      { id: 'Writing', durationSeconds: DURATIONS.Writing, taskCount: 2 },
-      { id: 'Speaking', durationSeconds: DURATIONS.Speaking, partCount: 3 }
-    ],
-    persistence: 'account-and-local-browser',
-    scoring: 'unofficial-practice-estimate'
+    skills: testCatalog(), persistence: 'account-and-local-browser', scoring: 'unofficial-practice-estimate'
   }));
+  app.get('/api/tests', (_req, res) => res.json({ version: questionBank.version, tests: testCatalog() }));
+  app.get('/api/tests/:skill', (req, res) => {
+    const skill = req.params.skill;
+    if (!Object.prototype.hasOwnProperty.call(questionBank, skill) || !['Listening', 'Reading', 'Writing', 'Speaking'].includes(skill)) {
+      return res.status(404).json({ error: 'Practice test not found.' });
+    }
+    res.json({ test: { skill, version: questionBank.version, ...questionBank[skill] } });
+  });
   app.get('/api/auth/me', (req, res) => {
     if (!req.session.userId) return res.json({ user: null });
     const user = db.prepare('SELECT id,email,created_at FROM users WHERE id = ?').get(req.session.userId);
