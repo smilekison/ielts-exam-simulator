@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#26374b">
+  <title>IELTS Reading Practice Simulator</title>
+  <style>
+    :root{font-family:Arial,Helvetica,sans-serif;color:#182536;background:#eef1f5;font-synthesis:none}
+    *{box-sizing:border-box}
+    body{margin:0;height:100vh;min-height:540px;display:flex;flex-direction:column;overflow:hidden}
+    button,input,textarea{font:inherit}
+    button{cursor:pointer}
+    .topbar{height:64px;background:#26374b;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 24px;gap:16px;flex-shrink:0}
+    .brand{display:flex;align-items:center;gap:18px}.logo{font-size:30px;font-weight:800;letter-spacing:-1px}.brandline{border-left:1px solid #8190a0;padding-left:18px}.brandline strong{display:block;font-size:20px}.brandline small{display:block;margin-top:3px;color:#d7dee8}
+    .top-actions{display:flex;align-items:center;gap:20px}.timer{font-weight:700;white-space:nowrap}.timer.warning{color:#ffcf68}.toolbar{height:50px;display:flex;align-items:center;gap:0;padding:0 20px;background:#f8fafc;border-bottom:1px solid #c9d0d9;flex-shrink:0}
+    .tool{border:0;border-right:1px solid #c5ccd5;background:transparent;padding:9px 17px;color:#1c2e44}.tool:first-child{padding-left:4px}.tool.active{background:#e4edf8;color:#064bb7}.tool:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #84b8ff;outline-offset:2px}
+    .workspace{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);flex:1;min-height:0;gap:7px;background:#d1d6dc}
+    .pane{min-width:0;min-height:0;overflow:auto;scrollbar-color:#9aa3ad #edf0f3;scrollbar-width:thin}
+    .passage{background:#fff0bd;padding:22px clamp(22px,3.3vw,52px);font-size:16px;line-height:1.56}
+    .questions{background:#e5e7ea;padding:22px clamp(20px,2.8vw,42px);font-size:15px;line-height:1.5}
+    h1,h2,h3{line-height:1.2}.passage h1{text-align:center;font-size:23px;margin:0 0 18px}.passage h2{text-align:center;font-size:20px;margin:10px 0}.source{text-align:center;font-style:italic;margin-bottom:22px}.passage p{margin:0 0 17px}.section-break{border-top:1px solid #d8c98e;margin:32px 0 24px;padding-top:23px}
+    .questions h2{font-size:17px;margin:0 0 4px}.instructions{font-style:italic;margin:0 0 22px;color:#364355}.qblock{padding:0 0 18px;margin:0 0 12px;border-bottom:1px solid #cbd0d6}.qhead{display:flex;gap:13px;align-items:flex-start}.qnum{font-weight:700;min-width:28px}.qbody{flex:1}.options{margin:8px 0 0 28px;display:grid;gap:4px}.option{display:flex;gap:10px;align-items:flex-start;cursor:pointer;border-radius:5px;padding:2px 5px;margin-left:-5px}.option:hover{background:#d8e1ed}.option input{margin-top:4px;accent-color:#1769d2}.short-answer{display:block;width:min(100%,380px);padding:9px 10px;margin:9px 0 0 28px;border:1px solid #9ca7b5;border-radius:4px;background:#fff}.bottom{height:53px;display:flex;align-items:center;gap:12px;background:#fff;border-top:1px solid #cbd2da;padding:0 15px;flex-shrink:0}.grid-icon{font-size:22px}.bottom-label{font-weight:700;font-size:13px;white-space:nowrap}.question-nav{display:flex;gap:3px;overflow:auto;flex:1;padding:3px 0}.qnav{height:35px;min-width:30px;padding:0 6px;border:1px solid #c3cad3;border-radius:3px;background:white;color:#26364a;font-size:13px}.qnav.answered{background:#dcebe3;border-color:#82ad91}.qnav.current{background:#0969da;color:white;border-color:#0969da}.footer-actions{display:flex;gap:8px}.secondary,.primary{border:1px solid #7a899b;border-radius:5px;background:#fff;padding:8px 18px;font-weight:600;font-size:13px;white-space:nowrap}.primary{background:#0969da;border-color:#0969da;color:white}.primary:hover{background:#0758b7}.secondary:hover{background:#f0f3f7}.saved-state{font-size:12px;color:#c8d4e1;white-space:nowrap}
+    .overlay{position:fixed;inset:0;background:#10182799;display:none;align-items:center;justify-content:center;padding:20px;z-index:10}.overlay.open{display:flex}.dialog{width:min(550px,100%);max-height:85vh;overflow:auto;background:white;border-radius:12px;padding:24px;box-shadow:0 20px 70px #0004}.dialog h2{margin-top:0}.dialog-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}.result-row{display:flex;justify-content:space-between;border-bottom:1px solid #e0e4e9;padding:10px 0}
+    @media(max-width:760px){body{height:100dvh}.topbar{height:58px;padding:0 12px}.logo{font-size:22px}.brand{gap:10px}.brandline{padding-left:10px}.brandline strong{font-size:16px}.brandline small{font-size:11px}.top-actions{gap:8px}.timer{font-size:12px}.saved-state{display:none}.tool{padding:8px;font-size:12px}.workspace{grid-template-columns:1fr;grid-template-rows:1fr 1fr;gap:5px}.passage,.questions{padding:18px;font-size:15px}.passage h1{font-size:20px}.bottom{gap:6px;padding:0 8px}.bottom-label{display:none}.qnav{min-width:28px;height:32px}.secondary,.primary{padding:8px 10px}.question-nav{gap:2px}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><div class="logo">IELTS</div><div class="brandline"><strong>Reading</strong><small>Practice Test · Section 1</small></div></div>
+    <div class="top-actions"><span class="timer" id="timer" aria-live="off">◷ 60:00 remaining</span><button class="tool" id="settingsBtn" style="color:white;border:0" aria-label="Test settings">⚙ Settings</button><span class="saved-state" id="saveStatus" aria-live="polite">Saved locally</span></div>
+  </header>
+  <nav class="toolbar" aria-label="Reading tools">
+    <button class="tool" id="highlightBtn" title="Select passage text then highlight it">🖍 Highlight</button>
+    <button class="tool" id="strikeBtn" title="Toggle strike-through mode for answer options">⌁ Strike-through</button>
+    <button class="tool" id="notesBtn">▤ Notes</button>
+    <button class="tool" id="instructionsBtn">ⓘ Instructions</button>
+  </nav>
+  <main class="workspace">
+    <article class="pane passage" id="passagePane" aria-label="Reading passage">
+      <h1>Reading Passage 1</h1>
+      <h2>Is your child at school today?</h2>
+      <div class="source">Practice passage · General Training Reading</div>
+      <p>Forcing a child to go to school has always been a controversial issue. In the past, many children were needed at home to help with farm work or to earn money for their families. Nowadays, however, almost every country in the world has laws requiring children to go to school, at least until a certain age.</p>
+      <p>There are several reasons for compulsory education. Firstly, it helps to ensure that all children receive a basic level of education, which is considered important for their future lives. Secondly, schools provide a safe and structured environment, where children can develop social skills and learn to live and work with others. Finally, education is seen as essential for the economic and social development of a country.</p>
+      <p>However, some people still believe that parents should have the right to decide whether their child goes to school. They argue that it is a family's responsibility, and that compulsory education interferes with personal freedom. Others suggest that the school system is not suitable for all children and that some may learn better at home or through alternative forms of education.</p>
+      <p>Despite these debates, most governments continue to support compulsory education. They believe that the benefits for individuals and society as a whole are greater than any disadvantages.</p>
+      <div class="section-break"><h2>HOLIDAY APARTMENTS TO LET</h2><div class="source">From a travel magazine article</div>
+      <p>More and more people are choosing to stay in holiday apartments when they travel. These apartments are often cheaper than hotels and give you more space and freedom. You can cook your own meals, which can save money, and you can live like a local, rather than feeling like a tourist.</p>
+      <p>Holiday apartments are available in many different places, from busy cities to quiet countryside villages. Some are in modern buildings with facilities such as swimming pools and gyms, while others are in traditional houses full of character.</p>
+      <p>Before booking an apartment, consider its location, the facilities available and the terms of the rental agreement. Read recent reviews and check what is included in the price. Cleaning fees, deposits and cancellation conditions can vary, so it is worth checking these details in advance.</p></div>
+      <div class="section-break"><h2>Reading Passage 2</h2><h2>Recruitment Information</h2>
+      <p>When applying for a job, candidates should read the job description carefully and make sure their experience matches the role. A clear application should explain relevant skills and give examples of previous achievements.</p>
+      <p>Employers may invite shortlisted candidates to an interview. Applicants should arrive on time, prepare questions about the position and bring any requested documents. After the interview, a brief thank-you message can be a professional way to express continued interest.</p>
+      <p>Workplace training helps employees understand policies, develop practical skills and work safely. New employees should ask for clarification whenever instructions are unclear.</p></div>
+      <div class="section-break"><h2>Reading Passage 3</h2><h2>The changing world of work</h2>
+      <p>Technology has changed the way many people work. Digital tools make it possible for teams to collaborate across different locations, while flexible schedules can help some employees balance work and family responsibilities.</p>
+      <p>However, remote work also presents challenges. Workers may feel isolated, and communication can be more difficult when colleagues rarely meet in person. Organisations can address these issues by setting clear expectations, scheduling regular check-ins and supporting staff wellbeing.</p>
+      <p>The most effective working arrangements depend on the type of job, the needs of employees and the goals of the organisation. There is no single approach that works for everyone.</p></div>
+    </article>
+    <section class="pane questions" id="questionPane" aria-label="Questions">
+      <h2 id="questionHeading">Questions 1–8</h2>
+      <p class="instructions">Choose the correct answer. Select an option or enter your answer in the box provided. Your answers are saved automatically in this browser.</p>
+      <div id="questionList"></div>
+    </section>
+  </main>
+  <footer class="bottom">
+    <span class="grid-icon" aria-hidden="true">▦</span><span class="bottom-label">Questions</span>
+    <div class="question-nav" id="questionNav" aria-label="Jump to question"></div>
+    <div class="footer-actions"><button class="secondary" id="prevBtn">Previous</button><button class="primary" id="nextBtn">Next →</button><button class="primary" id="submitBtn">Finish</button></div>
+  </footer>
+  <div class="overlay" id="dialogOverlay" role="dialog" aria-modal="true" aria-labelledby="dialogTitle">
+    <div class="dialog"><h2 id="dialogTitle">Test</h2><div id="dialogBody"></div><div class="dialog-actions"><button class="secondary" id="closeDialog">Close</button><button class="primary" id="dialogPrimary" style="display:none">Continue</button></div></div>
+  </div>
+  <script>
+    (() => {
+      'use strict';
+      const STORAGE_KEY = 'ielts-reading-simulator-v1';
+      const questions = [
+        {id:1,text:'Why were children needed at home in the past?',type:'choice',options:['To look after their parents','To help with farm work','To learn social skills','To earn money for their education']},
+        {id:2,text:'According to the passage, one reason for compulsory education is that it helps children develop…',type:'choice',options:['family relationships','physical strength','social skills','knowledge of other countries']},
+        {id:3,text:'What do some people believe about education?',type:'choice',options:['Every child must attend the same school','Parents should have a choice about schooling','Schools are always better than home education','Children should start working earlier']},
+        {id:4,text:'What do most governments believe?',type:'choice',options:['Parents should decide whether their child goes to school','Compulsory education has more benefits than disadvantages','Alternative education is always more effective','Schools should be optional']},
+        {id:5,text:'Holiday apartments may be cheaper than what?',type:'text'},
+        {id:6,text:'Name one detail people should check before booking a holiday apartment.',type:'text'},
+        {id:7,text:'What should a clear job application explain?',type:'text'},
+        {id:8,text:'Give one challenge associated with remote work.',type:'text'}
+      ];
+      const state = {answers:{},struck:[],remaining:3600,startedAt:Date.now(),notes:'',submitted:false};
+      const $ = id => document.getElementById(id);
+      let timerHandle = null, strikeMode = false, highlighted = false;
+      function loadSaved() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+          if (!saved) return;
+          if (saved.answers && typeof saved.answers === 'object') state.answers = saved.answers;
+          if (Array.isArray(saved.struck)) state.struck = saved.struck;
+          if (typeof saved.remaining === 'number') state.remaining = Math.max(0, saved.remaining);
+          if (typeof saved.notes === 'string') state.notes = saved.notes;
+          if (typeof saved.submitted === 'boolean') state.submitted = saved.submitted;
+          if (typeof saved.startedAt === 'number') {
+            const elapsed = Math.max(0, Math.floor((Date.now()-saved.startedAt)/1000));
+            state.remaining = Math.max(0, state.remaining-elapsed);
+          }
+        } catch { /* Ignore invalid browser storage and start a fresh attempt. */ }
+      }
+      function persist() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          $('saveStatus').textContent = 'Saved locally';
+        } catch {
+          $('saveStatus').textContent = 'Saving unavailable';
+        }
+      }
+      function escapeHTML(value) {
+        return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+      }
+      function renderQuestions() {
+        $('questionList').innerHTML = questions.map(q => {
+          const answer = state.answers[q.id] ?? '';
+          const content = q.type === 'choice'
+            ? '<div class="options">'+q.options.map((opt,i) => {
+                const value = String.fromCharCode(65+i), isStruck = state.struck.includes(q.id+':'+value);
+                return '<label class="option" data-option="'+q.id+':'+value+'" style="'+(isStruck?'text-decoration:line-through;opacity:.55':'')+'"><input type="radio" name="q'+q.id+'" value="'+value+'" '+(answer===value?'checked':'')+'><span><b>'+value+'</b> &nbsp; '+escapeHTML(opt)+'</span></label>';
+              }).join('')+'</div>'
+            : '<input class="short-answer" type="text" aria-label="Answer to question '+q.id+'" data-answer="'+q.id+'" value="'+escapeHTML(answer)+'" placeholder="Type your answer here…">';
+          return '<div class="qblock" id="qblock-'+q.id+'"><div class="qhead"><span class="qnum">'+q.id+'.</span><div class="qbody">'+escapeHTML(q.text)+'</div></div>'+content+'</div>';
+        }).join('');
+        $('questionHeading').textContent = 'Questions 1–'+questions.length;
+        renderNav();
+      }
+      function renderNav() {
+        $('questionNav').innerHTML = questions.map(q => '<button class="qnav '+(state.answers[q.id]?'answered ':'')+(q.id===currentQuestion?'current':'')+'" data-jump="'+q.id+'" aria-label="Go to question '+q.id+'" title="'+(state.answers[q.id]?'Answered':'Unanswered')+'">'+q.id+'</button>').join('');
+      }
+      let currentQuestion = 1;
+      function jumpTo(n) {
+        currentQuestion = Math.min(questions.length, Math.max(1,n));
+        $('qblock-'+currentQuestion)?.scrollIntoView({block:'start',behavior:'smooth'});
+        renderNav();
+      }
+      function formatTime(total) {
+        const m = Math.floor(total/60), s = total%60;
+        return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+      }
+      function showTimer() {
+        $('timer').textContent = '◷ '+formatTime(state.remaining)+' remaining';
+        $('timer').classList.toggle('warning',state.remaining<=300);
+      }
+      function showDialog(title,html,primaryLabel,primaryAction) {
+        $('dialogTitle').textContent = title;
+        $('dialogBody').innerHTML = html;
+        $('dialogPrimary').style.display = primaryLabel?'inline-block':'none';
+        $('dialogPrimary').textContent = primaryLabel || 'Continue';
+        $('dialogPrimary').onclick = primaryAction || null;
+        $('dialogOverlay').classList.add('open');
+      }
+      function closeDialog() { $('dialogOverlay').classList.remove('open'); }
+      function showSummary() {
+        const answered = questions.filter(q => String(state.answers[q.id]||'').trim()).length;
+        showDialog('Finish practice test',
+          '<p>You have answered <strong>'+answered+' of '+questions.length+'</strong> questions.</p><p>'+(questions.length-answered)+' question(s) remain unanswered.</p><p>Answers are saved in this browser. This demo has no answer key configured, so it cannot calculate a reliable score yet.</p>',
+          'Submit test', () => {state.submitted=true;persist();closeDialog();showResults();});
+      }
+      function showResults() {
+        const answered = questions.filter(q=>String(state.answers[q.id]||'').trim()).length;
+        $('submitBtn').textContent='Review';
+        showDialog('Practice test submitted',
+          '<p>Your attempt has been saved in this browser.</p><div class="result-row"><span>Questions</span><strong>'+questions.length+'</strong></div><div class="result-row"><span>Answered</span><strong>'+answered+'</strong></div><div class="result-row"><span>Unanswered</span><strong>'+(questions.length-answered)+'</strong></div><p>Add the official practice answer key to enable score calculation.</p>',
+          'Review answers', () => {closeDialog();jumpTo(1);});
+      }
+      $('questionList').addEventListener('change',e => {
+        const t=e.target;
+        if (t.matches('input[type=radio]')) {
+          const id=Number(t.name.slice(1));state.answers[id]=t.value;persist();renderNav();
+        }
+      });
+      $('questionList').addEventListener('input',e => {
+        const t=e.target;
+        if (t.matches('[data-answer]')) {
+          state.answers[Number(t.dataset.answer)]=t.value;persist();renderNav();
+        }
+      });
+      $('questionList').addEventListener('click',e => {
+        const label=e.target.closest('[data-option]');
+        if (label && strikeMode && !e.target.matches('input')) {
+          const key=label.dataset.option;
+          state.struck=state.struck.includes(key)?state.struck.filter(x=>x!==key):[...state.struck,key];
+          persist();renderQuestions();
+        }
+        const block=e.target.closest('.qblock');
+        if (block) {currentQuestion=Number(block.id.replace('qblock-',''));renderNav();}
+      });
+      $('questionNav').addEventListener('click',e => {const b=e.target.closest('[data-jump]');if(b)jumpTo(Number(b.dataset.jump));});
+      $('prevBtn').addEventListener('click',()=>jumpTo(currentQuestion-1));
+      $('nextBtn').addEventListener('click',()=>jumpTo(currentQuestion+1));
+      $('submitBtn').addEventListener('click',()=>state.submitted?showResults():showSummary());
+      $('closeDialog').addEventListener('click',closeDialog);
+      $('dialogOverlay').addEventListener('click',e=>{if(e.target===$('dialogOverlay'))closeDialog();});
+      $('settingsBtn').addEventListener('click',()=>showDialog('Test settings','<p><strong>Duration:</strong> 60 minutes</p><p><strong>Answer storage:</strong> This browser only (local storage).</p><p><strong>Content:</strong> Demonstration questions; replace these with your supplied test content.</p>','Reset attempt',()=>{
+        if(confirm('Reset all answers, notes and timer for this browser?')){localStorage.removeItem(STORAGE_KEY);location.reload();}
+      }));
+      $('instructionsBtn').addEventListener('click',()=>showDialog('Instructions','<p>Read the passages in the left pane and answer the questions in the right pane. Your selections are automatically saved in this browser.</p><p>Use the numbered buttons along the bottom to jump between questions. Select <strong>Finish</strong> to review unanswered questions before submission.</p><p>This is an independent practice interface, not an official IELTS application.</p>'));
+      $('notesBtn').addEventListener('click',()=>showDialog('Notes','<label for="notesField">Your notes (saved automatically)</label><textarea id="notesField" rows="7" style="width:100%;padding:10px;margin-top:8px;border:1px solid #aab4c0;border-radius:5px">'+escapeHTML(state.notes)+'</textarea>','Save notes',()=>{state.notes=$('notesField').value;persist();closeDialog();}));
+      $('highlightBtn').addEventListener('click',()=>{
+        const selection=window.getSelection();
+        if(selection && selection.toString().trim() && $('passagePane').contains(selection.anchorNode)){
+          try {const range=selection.getRangeAt(0);const mark=document.createElement('mark');mark.style.background='#ffe46b';range.surroundContents(mark);selection.removeAllRanges();}catch{alert('For this selection, try highlighting a smaller part of a paragraph.');}
+        } else {
+          highlighted=!highlighted;$('highlightBtn').classList.toggle('active',highlighted);
+          alert('Select text in the reading passage, then click Highlight.');
+        }
+      });
+      $('strikeBtn').addEventListener('click',()=>{strikeMode=!strikeMode;$('strikeBtn').classList.toggle('active',strikeMode);$('strikeBtn').setAttribute('aria-pressed',String(strikeMode));});
+      document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDialog();});
+      loadSaved();renderQuestions();showTimer();
+      if (!state.submitted && state.remaining>0) {
+        timerHandle=setInterval(()=>{
+          state.remaining=Math.max(0,state.remaining-1);showTimer();persist();
+          if(state.remaining<=0){clearInterval(timerHandle);showSummary();}
+        },1000);
+      }
+      if (state.submitted) $('submitBtn').textContent='Review';
+      window.addEventListener('beforeunload',persist);
+    })();
+  </script>
+</body>
+</html>
