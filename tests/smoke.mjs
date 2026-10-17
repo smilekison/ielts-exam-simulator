@@ -28,6 +28,7 @@ try {
   page.once('dialog', dialog => dialog.accept());
   await page.getByRole('button', { name: 'Finish' }).click();
   await page.getByText('Correct answers', { exact: false }).waitFor();
+  await page.getByRole('button', { name: 'Close' }).click();
 
   // Writing tasks switch and autosave; Speaking exposes all three parts.
   await page.getByRole('button', { name: /Test menu/ }).click();
