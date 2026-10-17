@@ -46,8 +46,19 @@ try {
   await page.getByRole('button', { name: 'Part 2' }).click();
   await page.getByRole('button', { name: /Start 1-minute preparation/ }).waitFor();
 
-  assert.deepEqual(errors, [], 'Browser should not report uncaught JavaScript errors');
-  console.log('Smoke test passed: Reading/Listening navigation, saved answers, scoring dialog, Writing tasks and Speaking transitions.');
+  // Mobile viewport sanity check: cards and question navigation remain usable.
+  const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  mobile.on('pageerror', error => { errors.push('mobile: ' + error.message); console.error('MOBILE PAGEERROR:', error.message); });
+  await mobile.goto('http://127.0.0.1:4173', { waitUntil: 'networkidle' });
+  await mobile.locator('button[data-skill="Reading"]').click();
+  await mobile.locator('#panegrid:not(.hide)').waitFor();
+  assert.equal(await mobile.locator('#questionNav button').count(), 40, 'Mobile Reading navigation should contain 40 questions');
+  await mobile.locator('[data-jump="40"]').click();
+  await mobile.locator('#qblock-40').waitFor();
+  await mobile.close();
+
+  assert.deepEqual(errors, [], 'Desktop and mobile browsers should not report uncaught JavaScript errors');
+  console.log('Smoke test passed: desktop and mobile Reading navigation, answer persistence, scoring, Writing tasks and Speaking transitions.');
 } finally {
   await browser.close();
 }
