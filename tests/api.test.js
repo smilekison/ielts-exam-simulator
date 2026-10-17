@@ -20,6 +20,13 @@ test('health and configuration endpoints are available', async t => {
   assert.equal(health.body.status, 'ok');
   const config = await agent.get('/api/config').expect(200);
   assert.equal(config.body.skills.find(skill => skill.id === 'Reading').questionCount, 40);
+  const catalog = await agent.get('/api/tests').expect(200);
+  assert.equal(catalog.body.version, 1);
+  const reading = await agent.get('/api/tests/Reading').expect(200);
+  assert.equal(reading.body.test.passages.length, 3);
+  assert.equal(reading.body.test.passages.reduce((total, passage) => total + passage.qs.length, 0), 40);
+  assert.equal(JSON.stringify(reading.body).includes('answerKeys'), false, 'Public question API must not expose the answer key');
+  await agent.get('/api/tests/Unknown').expect(404);
 });
 
 test('registration validates inputs, hashes password and supports sign-in state', async t => {
