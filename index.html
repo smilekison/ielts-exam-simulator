@@ -94,7 +94,6 @@ $('notesBtn').onclick=()=>showDialog('Notes','<label for="notesField">Personal n
 $('instructionsBtn').onclick=()=>showDialog('Practice instructions','<p>Choose a skill and complete the timed questions. Your selections and typed answers save automatically in this browser.</p><p>Listening playback uses browser text-to-speech and is a simulation, not an official recording. Speaking recordings require microphone permission and remain in the current session.</p><p>This independent tool is not affiliated with or endorsed by IELTS or the British Council. The UI is IELTS-inspired rather than an exact copy of a proprietary official interface.</p>');
 $('settingsBtn').onclick=()=>showDialog('Test settings','<p><b>Listening:</b> 30 minutes · <b>Reading:</b> 60 minutes · <b>Writing:</b> 60 minutes · <b>Speaking:</b> 14 minutes.</p><p>Resetting removes all locally saved answers, notes and writing responses for this simulator.</p>','Reset all progress',()=>{if(confirm('Delete all locally saved practice progress?')){localStorage.removeItem(STORE);location.reload()}});
 $('closeDialog').onclick=closeDialog;$('overlay').onclick=e=>{if(e.target===$('overlay'))closeDialog()};document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDialog()});
-document.querySelectorAll('.skill').forEach(b=>b.onclick=()=>begin(b.dataset.skill));
 load();openHome();
 })();
 </script></body></html>
